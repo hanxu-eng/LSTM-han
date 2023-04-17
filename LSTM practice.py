@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import text
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.metrics import mean_squared_error
@@ -61,12 +62,27 @@ X_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], amount_of_feature
 #建立、训练模型过程
 d = 0.01
 model = Sequential()#建立层次模型
-model.add(LSTM(32, input_shape=(window, feanum), return_sequences=True))#建立LSTM层
+model.add(LSTM(32, input_shape=(window, 5), return_sequences=True))#建立LSTM层
 model.add(Dropout(d))#建立的遗忘层
-model.add(LSTM(16, input_shape=(window, feanum), return_sequences=False))#建立LSTM层
+model.add(LSTM(16, input_shape=(window, 5), return_sequences=False))#建立LSTM层
 model.add(Dropout(d))#建立的遗忘层
 model.add(Dense(2,kernel_initializer='uniform',activation='relu'))   #建立全连接层
 model.add(Dense(1,kernel_initializer='uniform',activation='relu'))
 model.compile(loss='mse',optimizer='adam',metrics=['accuracy'])
 model.fit(X_train, y_train, epochs =100, batch_size = 128) #训练模型epoch次
+
+#总结模型
+model.summary()
+
+#在训练集上的拟合结果
+y_train_predict=model.predict(X_train)[:,0]
+y_train=y_train
+
+draw=pd.concat([pd.DataFrame(y_train),pd.DataFrame(y_train_predict)],axis=1)
+draw.iloc[100:400,0].plot(figsize=(12,6))
+draw.iloc[100:400,1].plot(figsize=(12,6))
+plt.legend(('real', 'predict'),loc='upper right',fontsize='15')
+plt.title("Train Data",fontsize='30') #添加标题
+#展示在训练集上的表现
+
 
